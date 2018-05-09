@@ -12,48 +12,62 @@ namespace SearchDublicates
     class Program
     {
          static string rootPath = @"C:\TESTDIR";
-         static string backUp = @"C:\backUp";
+         static string targetbackUp = @"C:\backUp";
+         static string currentData = DateTime.Now.ToString("dd/MM/yyyy");
+         static int count = 1;
 
-         static Hashtable hashable = new Hashtable();
+        static Dictionary<string, string> hashable = new Dictionary<string, string>();
 
         static void Main(string[] args)
         {           
-            if (Directory.Exists(backUp))
+            if (Directory.Exists(targetbackUp))
             {
-                RemoveBackUp();
+               // RemoveBackUp();
             }
-            string dir =  Directory.GetParent(rootPath).FullName;
-            GitHashFiles(rootPath);
+           
+            GetHashFiles(rootPath);
         }
 
-        public static void GitHashFiles(string path)
+        public static void GetHashFiles(string path)
         {             
-            string[] files = Directory.GetFiles(path);
+            string[] files = Directory.GetFiles(path);            
+
             if (Directory.Exists(path))
             {
                 foreach (var fs in files)
                 {
-                    if (hashable.Contains(GetHashMD5File(fs)))
-                    {
-                        int k = 0;
-                        string backUpTarget = CreateDirectory(backUp);
-
+                    if (hashable.All(i=> i.Value.Equals(fs, StringComparison.CurrentCultureIgnoreCase)) 
+                        && hashable.ContainsKey(GetHashMD5File(fs))
+                        || hashable.ContainsKey(GetHashMD5File(fs))
+                        )                                 
+                    {                        
+                        string currentDirectory = CreateDirectory(targetbackUp, currentData);
+                        string fileName =  Path.Combine(currentDirectory,Path.GetFileName(fs));
+                        string newFullPath = fileName;
                         try
                         {
-                            if (!File.Exists(backUpTarget + "\\" + Path.GetFileName(fs)))
+                            if (!File.Exists(fileName))
                             {
-                                File.Copy(fs, backUpTarget + "\\" + Path.GetFileName(fs));
+                                File.Copy(fs, fileName);
                                 File.Delete(fs);
                             }
                             else
                             {
-
-                                File.Copy(fs, backUpTarget + "\\" + (k++) + "-" + Path.GetFileName(fs));
+                                while (File.Exists(newFullPath))
+                                {
+                                    string fileWithoutExt = Path.GetFileNameWithoutExtension(fs);
+                                    string fileExt = Path.GetExtension(fs);
+                                    string newFileName = String.Format("{0}({1})", fileWithoutExt, count++);
+                                    newFullPath = Path.Combine(currentDirectory, newFileName + fileExt);
+                                }
+                                File.Copy(fs, newFullPath);
+                                File.Delete(fs);
                             }
                         }
                         catch(Exception e)
                         {
-                            Console.WriteLine("Sorry the  process failed ", e.ToString());
+                            Console.WriteLine("Sorry the  process failed ", fs);
+                            Console.WriteLine("{0}", e.ToString());
                         }
                     }
                     else
@@ -66,29 +80,36 @@ namespace SearchDublicates
                 {
                     foreach (var d in Directory.GetDirectories(path))
                     {
-                        GitHashFiles(d);
+                        GetHashFiles(d);
                     }
                 }                                  
             }           
         }
 
-        static string CreateDirectory (string targetPath )
-        {          
-           // string targetPath =  Path.Combine(backUp);
+        static string CreateDirectory(string targetPath , string targetDirectory = null)
+        {
+            DirectoryInfo backUpTarget = null;
+            DirectoryInfo currentDirectory = null;
             try
             {
                 if (!Directory.Exists(targetPath))
                 {
-                    DirectoryInfo dir = Directory.CreateDirectory(targetPath);
-                    dir.Create();
+                    backUpTarget = Directory.CreateDirectory(targetPath);
+                    backUpTarget.Create();
+                }
+                if (Directory.Exists(targetPath))
+                {
+                  currentDirectory =  Directory.CreateDirectory(Path.Combine(targetPath, currentData));
+                  currentDirectory.Create();
                 }
             }
             catch (Exception e)
             {
-               Console.WriteLine("Sorry the  process failed ", e.ToString());
+                Console.WriteLine("Sorry the  process failed ");
+                Console.WriteLine("{0}", e.ToString());
             }
 
-            return targetPath;
+            return currentDirectory.FullName;
         }
 
         static string GetHashMD5File(string Name)
@@ -106,7 +127,7 @@ namespace SearchDublicates
 
         static void RemoveBackUp()
         {
-            Directory.Delete(backUp, true);        
+            Directory.Delete(targetbackUp, true);        
         }
     }
 }
