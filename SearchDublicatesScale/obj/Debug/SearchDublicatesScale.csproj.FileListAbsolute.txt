@@ -1,0 +1,5 @@
+C:\Git\WebAPI\SearchDublicates\SearchDublicatesScale\bin\Debug\SearchDublicatesScale.exe.config
+C:\Git\WebAPI\SearchDublicates\SearchDublicatesScale\bin\Debug\SearchDublicatesScale.exe
+C:\Git\WebAPI\SearchDublicates\SearchDublicatesScale\bin\Debug\SearchDublicatesScale.pdb
+C:\Git\WebAPI\SearchDublicates\SearchDublicatesScale\obj\Debug\SearchDublicatesScale.exe
+C:\Git\WebAPI\SearchDublicates\SearchDublicatesScale\obj\Debug\SearchDublicatesScale.pdb
