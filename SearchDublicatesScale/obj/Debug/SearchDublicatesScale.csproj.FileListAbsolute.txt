@@ -3,4 +3,3 @@ C:\Git\WebAPI\SearchDublicates\SearchDublicatesScale\bin\Debug\SearchDublicatesS
 C:\Git\WebAPI\SearchDublicates\SearchDublicatesScale\bin\Debug\SearchDublicatesScale.pdb
 C:\Git\WebAPI\SearchDublicates\SearchDublicatesScale\obj\Debug\SearchDublicatesScale.exe
 C:\Git\WebAPI\SearchDublicates\SearchDublicatesScale\obj\Debug\SearchDublicatesScale.pdb
-C:\Git\WebAPI\SearchDublicates\SearchDublicatesScale\obj\Debug\SearchDublicatesScale.csprojResolveAssemblyReference.cache

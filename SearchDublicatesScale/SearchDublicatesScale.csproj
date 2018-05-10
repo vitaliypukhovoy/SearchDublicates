@@ -43,6 +43,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Classes\CreateDirectories.cs" />
+    <Compile Include="Classes\Dublicates.cs" />
+    <Compile Include="Classes\HashFiles.cs" />
+    <Compile Include="Classes\HashMD5File.cs" />
+    <Compile Include="Interface\IDublicates.cs" />
+    <Compile Include="Interface\IHashMD5File.cs" />
+    <Compile Include="Interface\ICreateDirectories.cs" />
+    <Compile Include="Interface\IHashFiles.cs" />
+    <Compile Include="Interface\IRemoveBackUp.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

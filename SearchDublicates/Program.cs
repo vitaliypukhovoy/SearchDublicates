@@ -1,18 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Security.Cryptography;
 using System.IO;
-using System.Collections;
 using System.Runtime.CompilerServices;
 
-[assembly:  InternalsVisibleTo("TestSearchDublicates")]
+[assembly: InternalsVisibleTo("TestSearchDublicates")]
 
 namespace SearchDublicates
 {
-    internal   class Dublicates
+    internal class Dublicates
     {
         private readonly string targetbackUp;
         private readonly string currentData;
@@ -23,8 +20,8 @@ namespace SearchDublicates
             targetbackUp = _targetbackUp;
             currentData = _currentData;
 
-        }              
-        public  void GetHashFiles(string path)
+        }
+        public void GetHashFiles(string path)
         {
             string[] files = Directory.GetFiles(path);
 
@@ -106,10 +103,10 @@ namespace SearchDublicates
             }
             catch (Exception e)
             {
-                Console.WriteLine("Sorry the  process failed " + e.ToString());               
+                Console.WriteLine("Sorry the  process failed " + e.ToString());
             }
 
-            return  currentDirectory.FullName?? backUpTarget.FullName;
+            return currentDirectory.FullName ?? backUpTarget.FullName;
         }
 
         private string GetHashMD5File(string Name)
@@ -126,7 +123,7 @@ namespace SearchDublicates
         }
 
 
-        public  void RemoveBackUp(string path)
+        public void RemoveBackUp(string path)
         {
             string[] files = Directory.GetFiles(path);
             string[] dirs = Directory.GetDirectories(path);
@@ -150,7 +147,7 @@ namespace SearchDublicates
             {
                 Directory.Delete(path, true);
             }
-            
+
         }
 
 
@@ -161,21 +158,21 @@ namespace SearchDublicates
 
         static void Main(string[] args)
         {
-           
-             string targetbackUp = @"C:\backUp";
-             string currentData = DateTime.Now.ToString("dd/MM/yyyy");
-             Dublicates d = new Dublicates(targetbackUp, currentData);
+
+            string targetbackUp = @"C:\backUp";
+            string currentData = DateTime.Now.ToString("dd/MM/yyyy");
+            Dublicates d = new Dublicates(targetbackUp, currentData);
 
             if (Directory.Exists(targetbackUp))
             {
-                //d.RemoveBackUp(targetbackUp);
+                // d.RemoveBackUp(targetbackUp);
             }
-                    
+
             d.GetHashFiles(rootPath);
             Console.WriteLine("All  dublicate files have saved");
             Console.ReadKey();
         }
 
-       
+
     }
 }
