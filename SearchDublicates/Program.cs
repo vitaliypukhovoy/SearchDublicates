@@ -6,43 +6,39 @@ using System.Threading.Tasks;
 using System.Security.Cryptography;
 using System.IO;
 using System.Collections;
+using System.Runtime.CompilerServices;
+
+[assembly: InternalsVisibleTo("TestSearchDublicates")]
 
 namespace SearchDublicates
 {
-    class Program
+    internal   class Dublicates
     {
-         static string rootPath = @"C:\TESTDIR";
-         static string targetbackUp = @"C:\backUp";
-         static string currentData = DateTime.Now.ToString("dd/MM/yyyy");
-         static int count = 1;
-
+        private readonly string targetbackUp;
+        private readonly string currentData;
         static Dictionary<string, string> hashable = new Dictionary<string, string>();
+        int count = 1;
+        public Dublicates(string _targetbackUp, string _currentData)
+        {
+            targetbackUp = _targetbackUp;
+            currentData = _currentData;
 
-        static void Main(string[] args)
-        {           
-            if (Directory.Exists(targetbackUp))
-            {
-               // RemoveBackUp();
-            }
-           
-            GetHashFiles(rootPath);
-        }
-
-        public static void GetHashFiles(string path)
-        {             
-            string[] files = Directory.GetFiles(path);            
+        }              
+        public  void GetHashFiles(string path)
+        {
+            string[] files = Directory.GetFiles(path);
 
             if (Directory.Exists(path))
             {
                 foreach (var fs in files)
                 {
-                    if (hashable.All(i=> i.Value.Equals(fs, StringComparison.CurrentCultureIgnoreCase)) 
+                    if (hashable.All(i => i.Value.Equals(fs, StringComparison.CurrentCultureIgnoreCase))
                         && hashable.ContainsKey(GetHashMD5File(fs))
                         || hashable.ContainsKey(GetHashMD5File(fs))
-                        )                                 
-                    {                        
+                        )
+                    {
                         string currentDirectory = CreateDirectory(targetbackUp, currentData);
-                        string fileName =  Path.Combine(currentDirectory,Path.GetFileName(fs));
+                        string fileName = Path.Combine(currentDirectory, Path.GetFileName(fs));
                         string newFullPath = fileName;
                         try
                         {
@@ -64,7 +60,7 @@ namespace SearchDublicates
                                 File.Delete(fs);
                             }
                         }
-                        catch(Exception e)
+                        catch (Exception e)
                         {
                             Console.WriteLine("Sorry the  process failed ", fs);
                             Console.WriteLine("{0}", e.ToString());
@@ -72,7 +68,7 @@ namespace SearchDublicates
                     }
                     else
                     {
-                        hashable.Add(GetHashMD5File(fs),fs);
+                        hashable.Add(GetHashMD5File(fs), fs);
                     }
                 }
 
@@ -82,11 +78,11 @@ namespace SearchDublicates
                     {
                         GetHashFiles(d);
                     }
-                }                                  
-            }           
+                }
+            }
         }
 
-        static string CreateDirectory(string targetPath , string targetDirectory = null)
+        public string CreateDirectory(string targetPath, string targetDirectory = null)
         {
             DirectoryInfo backUpTarget = null;
             DirectoryInfo currentDirectory = null;
@@ -99,20 +95,25 @@ namespace SearchDublicates
                 }
                 if (Directory.Exists(targetPath))
                 {
-                  currentDirectory =  Directory.CreateDirectory(Path.Combine(targetPath, currentData));
-                  currentDirectory.Create();
+                    currentDirectory = Directory.CreateDirectory(Path.Combine(targetPath, targetDirectory));
+                    currentDirectory.Create();
                 }
+            }
+            catch (NullReferenceException ex)
+            {
+                Console.WriteLine("Sorry the  process failed, NullReferenceException ");
+                Console.WriteLine("{0}", ex.ToString());
             }
             catch (Exception e)
             {
-                Console.WriteLine("Sorry the  process failed ");
+                Console.WriteLine("Sorry the  process failed " + e.ToString());
                 Console.WriteLine("{0}", e.ToString());
             }
 
             return currentDirectory.FullName;
         }
 
-        static string GetHashMD5File(string Name)
+        public string GetHashMD5File(string Name)
         {
             var md = new MD5CryptoServiceProvider();
             string hash = String.Empty;
@@ -125,9 +126,32 @@ namespace SearchDublicates
             return hash;
         }
 
-        static void RemoveBackUp()
+        protected virtual void RemoveBackUp()
         {
-            Directory.Delete(targetbackUp, true);        
+            Directory.Delete(targetbackUp, true);
         }
+
+
+    }
+    class Program
+    {
+        static string rootPath = @"C:\TESTDIR";
+
+        static void Main(string[] args)
+        {
+            //if (Directory.Exists(targetbackUp))
+            //{
+            //   // RemoveBackUp();
+            //}
+             string targetbackUp = @"C:\backUp";
+             string currentData = DateTime.Now.ToString("dd/MM/yyyy");
+
+            Dublicates d = new Dublicates(targetbackUp, currentData);         
+            d.GetHashFiles(rootPath);
+            Console.WriteLine("All  dublicate files have saved");
+            Console.ReadKey();
+        }
+
+       
     }
 }

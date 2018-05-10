@@ -1,6 +1,5 @@
 C:\Git\WebAPI\SearchDublicates\SearchDublicates\bin\Debug\SearchDublicates.exe.config
 C:\Git\WebAPI\SearchDublicates\SearchDublicates\bin\Debug\SearchDublicates.exe
 C:\Git\WebAPI\SearchDublicates\SearchDublicates\bin\Debug\SearchDublicates.pdb
-C:\Git\WebAPI\SearchDublicates\SearchDublicates\obj\Debug\SearchDublicates.csprojResolveAssemblyReference.cache
 C:\Git\WebAPI\SearchDublicates\SearchDublicates\obj\Debug\SearchDublicates.exe
 C:\Git\WebAPI\SearchDublicates\SearchDublicates\obj\Debug\SearchDublicates.pdb
