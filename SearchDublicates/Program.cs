@@ -8,7 +8,7 @@ using System.IO;
 using System.Collections;
 using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("TestSearchDublicates")]
+[assembly:  InternalsVisibleTo("TestSearchDublicates")]
 
 namespace SearchDublicates
 {
@@ -82,7 +82,7 @@ namespace SearchDublicates
             }
         }
 
-        public string CreateDirectory(string targetPath, string targetDirectory = null)
+        private string CreateDirectory(string targetPath, string targetDirectory = null)
         {
             DirectoryInfo backUpTarget = null;
             DirectoryInfo currentDirectory = null;
@@ -106,14 +106,13 @@ namespace SearchDublicates
             }
             catch (Exception e)
             {
-                Console.WriteLine("Sorry the  process failed " + e.ToString());
-                Console.WriteLine("{0}", e.ToString());
+                Console.WriteLine("Sorry the  process failed " + e.ToString());               
             }
 
-            return currentDirectory.FullName;
+            return  currentDirectory.FullName?? backUpTarget.FullName;
         }
 
-        public string GetHashMD5File(string Name)
+        private string GetHashMD5File(string Name)
         {
             var md = new MD5CryptoServiceProvider();
             string hash = String.Empty;
@@ -126,9 +125,32 @@ namespace SearchDublicates
             return hash;
         }
 
-        protected virtual void RemoveBackUp()
+
+        public  void RemoveBackUp(string path)
         {
-            Directory.Delete(targetbackUp, true);
+            string[] files = Directory.GetFiles(path);
+            string[] dirs = Directory.GetDirectories(path);
+
+            foreach (string file in files)
+            {
+                File.SetAttributes(file, FileAttributes.Normal);
+                File.Delete(file);
+            }
+
+            foreach (string directory in Directory.GetDirectories(path))
+            {
+                RemoveBackUp(directory);
+            }
+
+            try
+            {
+                Directory.Delete(path, true);
+            }
+            catch (IOException)
+            {
+                Directory.Delete(path, true);
+            }
+            
         }
 
 
@@ -139,14 +161,16 @@ namespace SearchDublicates
 
         static void Main(string[] args)
         {
-            //if (Directory.Exists(targetbackUp))
-            //{
-            //   // RemoveBackUp();
-            //}
+           
              string targetbackUp = @"C:\backUp";
              string currentData = DateTime.Now.ToString("dd/MM/yyyy");
+             Dublicates d = new Dublicates(targetbackUp, currentData);
 
-            Dublicates d = new Dublicates(targetbackUp, currentData);         
+            if (Directory.Exists(targetbackUp))
+            {
+                //d.RemoveBackUp(targetbackUp);
+            }
+                    
             d.GetHashFiles(rootPath);
             Console.WriteLine("All  dublicate files have saved");
             Console.ReadKey();

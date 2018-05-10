@@ -8,6 +8,7 @@ using SearchDublicates;
 using System.IO;
 using System.Reflection;
 using System.Diagnostics;
+using NUnit.Framework.Internal;
 
 namespace TestSearchDublicates
 {
@@ -26,8 +27,15 @@ namespace TestSearchDublicates
         public void NTestCreateDirectory()
         {            
             string directory = "ttttt";                        
-            Dublicates d = new Dublicates(path, currentData);
-            string dir = d.CreateDirectory(path, directory);
+            Dublicates d = new Dublicates(path, currentData);          
+            object[] args = new object[2];
+            args[0] = path;
+            args[1] = directory;
+
+            MethodInfo methodInfo = typeof(Dublicates).GetMethod("CreateDirectory", BindingFlags.NonPublic | BindingFlags.Instance);
+            string dir = (string)methodInfo.Invoke(d, args);
+
+
             Assert.IsNotEmpty(dir);
             Assert.AreEqual(dir, path +"\\"+directory);
         }
@@ -37,15 +45,31 @@ namespace TestSearchDublicates
         {           
             string textData = Path.Combine("TestData", "1.txt");            
             Dublicates d = new Dublicates(path, currentData);
-            string md = d.GetHashMD5File(CurrentDirectory + "\\"+ textData);
+
+            object[] args = new object[1];
+            args[0] = CurrentDirectory + "\\" + textData;                                 
+            MethodInfo methodInfo = typeof(Dublicates).GetMethod("GetHashMD5File", BindingFlags.NonPublic | BindingFlags.Instance);           
+            var md  = methodInfo.Invoke(d, args);
+           
             Assert.IsNotNull(md);
         }
 
         [Test]
         public void NTestExceptionCreateDirectory()
         {
-            Dublicates d = new Dublicates(path, currentData);           
-            Assert.Throws<NullReferenceException>(() => d.CreateDirectory(null, null));
+            Dublicates d = new Dublicates(path, currentData);
+
+            object[] args = new object[2];
+            args[0] = null;
+            args[1] = null;
+
+            MethodInfo methodInfo = typeof(Dublicates).GetMethod("CreateDirectory", BindingFlags.NonPublic | BindingFlags.Instance);
+           // string md =  (string)methodInfo.Invoke(d, args) ;
+
+            
+           
+            Assert.Catch<TargetInvocationException>(() => methodInfo.Invoke(d, args));
+            Assert.Catch<Exception>(() => methodInfo.Invoke(d, args));
         }
 
         [Test]
