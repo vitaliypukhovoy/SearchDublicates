@@ -4,6 +4,8 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
+using System.Threading;
 
 [assembly: InternalsVisibleTo("TestSearchDublicates")]
 
@@ -29,10 +31,11 @@ namespace SearchDublicates
             {
                 foreach (var fs in files)
                 {
-                    if (hashable.All(i => i.Value.Equals(fs, StringComparison.CurrentCultureIgnoreCase))
-                        && hashable.ContainsKey(GetHashMD5File(fs))
-                        || hashable.ContainsKey(GetHashMD5File(fs))
-                        )
+                    string hash = GetHashMD5File(fs);
+                    // if (hashable.All(i => i.Value.Equals(fs, StringComparison.CurrentCultureIgnoreCase))
+                    //     && hashable.ContainsKey(hash)
+                    //     || hashable.ContainsKey(hash))
+                    if (hashable.ContainsKey(hash))
                     {
                         string currentDirectory = CreateDirectory(targetbackUp, currentData);
                         string fileName = Path.Combine(currentDirectory, Path.GetFileName(fs));
@@ -41,20 +44,11 @@ namespace SearchDublicates
                         {
                             if (!File.Exists(fileName))
                             {
-                                File.Copy(fs, fileName);
-                                File.Delete(fs);
+                                MoveFileAsync(fs, newFullPath).GetAwaiter();
                             }
                             else
                             {
-                                while (File.Exists(newFullPath))
-                                {
-                                    string fileWithoutExt = Path.GetFileNameWithoutExtension(fs);
-                                    string fileExt = Path.GetExtension(fs);
-                                    string newFileName = String.Format("{0}({1})", fileWithoutExt, count++);
-                                    newFullPath = Path.Combine(currentDirectory, newFileName + fileExt);
-                                }
-                                File.Copy(fs, newFullPath);
-                                File.Delete(fs);
+                                AddSameFileToCurrentDir(fs, newFullPath, currentDirectory).GetAwaiter();
                             }
                         }
                         catch (Exception e)
@@ -78,6 +72,80 @@ namespace SearchDublicates
                 }
             }
         }
+
+        private async Task AddSameFileToCurrentDir(string fs, string newFullPath, string currentDirectory)
+        {
+           await Task.Run(() =>
+            {
+                while (File.Exists(newFullPath))
+                {
+                    string fileWithoutExt = Path.GetFileNameWithoutExtension(fs);
+                    string fileExt = Path.GetExtension(fs);
+                    string newFileName = String.Format("{0}({1})", fileWithoutExt, count++);
+                    newFullPath = Path.Combine(currentDirectory, newFileName + fileExt);
+                }
+            }).ContinueWith(t=> {
+                if (MoveFileAsync(fs, newFullPath).IsCompleted)
+                {
+                    Console.WriteLine("File was moved");
+                };
+                if (t.IsFaulted) throw t.Exception;
+            });           
+        }
+
+        private async Task MoveFileAsync(string fileSource, string destFileName)
+        {           
+            await Task.Factory.StartNew(() =>
+             {
+                 File.Move(fileSource, destFileName);
+             });           
+        }
+
+
+        //private async Task CopyFileAsync(string fileSource, string destFileName)
+        //{
+        //    var bufferSize = 4096;
+        //    var fileOptions = FileOptions.Asynchronous | FileOptions.SequentialScan;
+        //    using (FileStream source = new FileStream(fileSource, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize, fileOptions))
+        //    {
+        //        using (FileStream destSource = new FileStream(destFileName, FileMode.CreateNew, FileAccess.Write, FileShare.Write, bufferSize, fileOptions))
+        //        {                  
+        //            await source.CopyToAsync(destSource, bufferSize)
+        //                        .ContinueWith(t =>
+        //                        {
+        //                            if (t.Exception is AggregateException)
+        //                            {
+        //                                var aux = t.Exception as AggregateException;
+        //                                foreach (var err in aux.InnerExceptions)
+        //                                {
+        //                                     Console.WriteLine("{0}: {1}", ierr.GetType().Name, err.Message);
+        //                                }
+        //                            }
+        //                        }, TaskContinuationOptions.OnlyOnFaulted);
+        //        }
+        //    }
+        //}
+
+        //private async void DeleteAsync(string fileSource)
+        //{
+        //    var fileOptions = FileOptions.Asynchronous | FileOptions.DeleteOnClose;
+        //    using (FileStream source = new FileStream(fileSource, FileMode.Truncate, FileAccess.Write, FileShare.Delete, 4096, fileOptions))
+        //    {
+        //        await source.FlushAsync()
+        //                     .ContinueWith(t =>
+        //                     {
+        //                         if (t.Exception is AggregateException)
+        //                         {
+        //                             var aux = t.Exception as AggregateException;
+        //                             foreach (var err in aux.InnerExceptions)
+        //                             {
+        //                                Console.WriteLine("{0}: {1}", err.GetType().Name, err.Message);
+        //                             }
+        //                         }
+        //                     }, TaskContinuationOptions.OnlyOnFaulted);
+        //        File.Delete(fileSource);
+        //    }
+        //}
 
         private string CreateDirectory(string targetPath, string targetDirectory = null)
         {
