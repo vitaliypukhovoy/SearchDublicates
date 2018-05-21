@@ -27,17 +27,18 @@ namespace SearchDublicates
         {
             string[] files = Directory.GetFiles(path);
 
-            if (Directory.Exists(path))
-            {
-                foreach (var fs in files)
+  //          if (Directory.Exists(path))
+  //          {
+//                foreach (var fs in files)
+              foreach (var fs in Directory.EnumerateFiles(path, "*.*", SearchOption.AllDirectories))
                 {
                     string hash = GetHashMD5File(fs);
-                    // if (hashable.All(i => i.Value.Equals(fs, StringComparison.CurrentCultureIgnoreCase))
-                    //     && hashable.ContainsKey(hash)
-                    //     || hashable.ContainsKey(hash))
-                    if (hashable.ContainsKey(hash))
-                    {
-                        string currentDirectory = CreateDirectory(targetbackUp, currentData);
+                // if (hashable.All(i => i.Value.Equals(fs, StringComparison.CurrentCultureIgnoreCase))
+                //     && hashable.ContainsKey(hash)// Here We can retrive either same files with same Name 
+                //     || hashable.ContainsKey(hash)) // of file and hashcode or with only  same hashcode.
+                if (hashable.ContainsKey(hash))    //I've done it for separating one. May be first file has original Name but second one has quite other Name.
+                {                                  //For Original I've prefered  selecting first file
+                    string currentDirectory = CreateDirectory(targetbackUp, currentData);
                         string fileName = Path.Combine(currentDirectory, Path.GetFileName(fs));
                         string newFullPath = fileName;
                         try
@@ -63,14 +64,14 @@ namespace SearchDublicates
                     }
                 }
 
-                if (Directory.GetDirectories(path) != null)
-                {
-                    foreach (var d in Directory.GetDirectories(path))
-                    {
-                        GetHashFiles(d);
-                    }
-                }
-            }
+                //if (Directory.GetDirectories(path) != null)
+                //{
+                //    foreach (var d in Directory.GetDirectories(path))
+                //    {
+                //        GetHashFiles(d);
+                //    }
+                //}
+            //}
         }
 
         private async Task AddSameFileToCurrentDir(string fs, string newFullPath, string currentDirectory)
@@ -86,8 +87,8 @@ namespace SearchDublicates
                  }
              }).ContinueWith(t =>
              {
-                     MoveFileAsync(fs, newFullPath).GetAwaiter();
-                     if (t.IsFaulted) throw t.Exception;
+                MoveFileAsync(fs, newFullPath).GetAwaiter();
+                
              })
              .ConfigureAwait(false);
              
@@ -119,12 +120,7 @@ namespace SearchDublicates
                     currentDirectory = Directory.CreateDirectory(Path.Combine(targetPath, targetDirectory));
                     currentDirectory.Create();
                 }
-            }
-            catch (NullReferenceException ex)
-            {
-                Console.WriteLine("Sorry the  process failed, NullReferenceException ");
-                Console.WriteLine("{0}", ex.ToString());
-            }
+            }          
             catch (Exception e)
             {
                 Console.WriteLine("Sorry the  process failed " + e.ToString());
