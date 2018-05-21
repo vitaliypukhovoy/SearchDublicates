@@ -45,11 +45,11 @@ namespace SearchDublicates
                         {
                             if (!File.Exists(fileName))
                             {
-                                MoveFileAsync(fs, newFullPath).GetAwaiter();
+                                MoveFileAsync(fs, newFullPath).GetAwaiter().GetResult();
                             }
                             else
                             {
-                                AddSameFileToCurrentDir(fs, newFullPath, currentDirectory).GetAwaiter();
+                                AddSameFileToCurrentDir(fs, newFullPath, currentDirectory).GetAwaiter().GetResult();
                             }
                         }
                         catch (Exception e)
@@ -87,10 +87,10 @@ namespace SearchDublicates
                  }
              }).ContinueWith(t =>
              {
-                MoveFileAsync(fs, newFullPath).GetAwaiter();
-                
+                 MoveFileAsync(fs, newFullPath).GetAwaiter().GetResult();                
              })
              .ConfigureAwait(false);
+            
              
         }
 
